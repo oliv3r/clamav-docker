@@ -119,11 +119,11 @@ RUN apt-get update && apt-get install -y \
         tzdata \
         netcat \
     && \
-    rm -rf /var/cache/apt/archives && \
+    rm -rf "/var/cache/apt/archives" && \
     groupadd -g 1000 "clamav" && \
-    useradd -m -g clamav -s /bin/false --home-dir /var/lib/clamav -u 1000 -c "Clam Antivirus" clamav && \
+    useradd -m -g clamav -s "/bin/false" --home-dir "/var/lib/clamav" -u 1000 -c "Clam Antivirus" clamav && \
     install -d -m 755 -g "clamav" -o "clamav" "/var/log/clamav" && \
-    chown -R clamav:clamav /var/lib/clamav
+    chown -R clamav:clamav "/var/lib/clamav"
 
 COPY --from=builder "/clamav" "/"
 

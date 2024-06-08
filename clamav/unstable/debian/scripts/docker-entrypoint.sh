@@ -15,7 +15,7 @@ if [ ! -d "/run/clamav" ]; then
 fi
 
 # Assign ownership to the database directory, just in case it is a mounted volume
-chown -R clamav:clamav /var/lib/clamav
+chown -R clamav:clamav "/var/lib/clamav"
 
 # run command if it is not starting with a "-" and is an executable in PATH
 if [ "${#}" -gt 0 ] && \
