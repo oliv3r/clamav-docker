@@ -472,6 +472,27 @@ the larger ClamAV database images on a regular basis.
 
 ## Advanced container configurations
 
+## Compose
+
+It is also quite possible, and probably common, to run clamav using docker
+compose. A simple example that does no process limiting (ulimits) or
+(sockets) volume mounts could be
+
+```yaml
+services:
+  clamav:
+    image: docker.io/clamav/clamav:debian
+    cap_drop:
+      - all
+    ports:
+      - "3310:3310/tcp"
+      - "7357:7357/tcp"
+    restart: unless-stopped
+    healthcheck:
+      test: clamdcheck.sh
+      start_period: 6m
+```
+
 ### Multiple containers sharing the same mounted databases
 
 You can run multiple containers that share the same database volume, but be

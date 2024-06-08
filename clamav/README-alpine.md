@@ -428,9 +428,18 @@ occasion send a `ping` to `clamd` on the default port and wait for the pong
 from `clamd`. If `clamd` fails to respond, Docker will treat this as an error.
 The healthcheck results can be viewed with `docker inspect`.
 
+Healthchecks are not enabled by default, but the script is available within the
+container. To start the container with a healthcheck running, add the
+appropriate `--health-*` flags to `docker run`.
+
 When the container starts up, the health-check also starts up. As loading the
-virus database can take some time, there is a delay configured in the
-`Dockerfile` to try and avoid this race condition.
+virus database can take some time, a delay is usually required to avoid this
+race condition.
+
+```bash
+    --health-cmd healthcheck.sh \
+    --health-start-period=6m
+```
 
 ## Performance
 
@@ -461,6 +470,27 @@ but also the Docker registry. Try not to download the entire database set or
 the larger ClamAV database images on a regular basis.
 
 ## Advanced container configurations
+
+## Compose
+
+It is also quite possible, and probably common, to run clamav using docker
+compose. A simple example that does no process limiting (ulimits) or
+(sockets) volume mounts could be
+
+```yaml
+services:
+  clamav:
+    image: docker.io/clamav/clamav:latest
+    cap_drop:
+      - all
+    ports:
+      - "3310:3310/tcp"
+      - "7357:7357/tcp"
+    restart: unless-stopped
+    healthcheck:
+      test: clamdcheck.sh
+      start_period: 6m
+```
 
 ### Multiple containers sharing the same mounted databases
 
