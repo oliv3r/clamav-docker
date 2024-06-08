@@ -116,10 +116,12 @@ RUN apt-get update && apt-get install -y \
         libpcre2-8-0 \
         libxml2 \
         zlib1g \
+        tini \
         tzdata \
         netcat \
     && \
     rm -rf "/var/cache/apt/archives" && \
+    ln -sf "/usr/bin/tini" "/sbin/tini" && \
     groupadd -g 1000 "clamav" && \
     useradd -m -g clamav -s "/bin/false" --home-dir "/var/lib/clamav" -u 1000 -c "Clam Antivirus" clamav && \
     install -d -m 755 -g "clamav" -o "clamav" "/var/log/clamav" && \
