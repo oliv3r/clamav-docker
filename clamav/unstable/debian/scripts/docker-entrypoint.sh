@@ -14,6 +14,10 @@ if [ ! -d "/run/clamav" ]; then
 	install -d -g "clamav" -m 775 -o "clamav" "/run/clamav"
 fi
 
+if [ ! -d "/tmp/clamav" ]; then
+	install -d -g "clamav" -m 775 -o "clamav" "/tmp/clamav"
+fi
+
 # Assign ownership to the database directory, just in case it is a mounted volume
 chown -R clamav:clamav "/var/lib/clamav"
 
@@ -57,11 +61,11 @@ else
 		if [ -S "/run/clamav/clamd.sock" ]; then
 			unlink "/run/clamav/clamd.sock"
 		fi
-		if [ -S "/tmp/clamd.sock" ]; then
-			unlink "/tmp/clamd.sock"
+		if [ -S "/tmp/clamav/clamd.sock" ]; then
+			unlink "/tmp/clamav/clamd.sock"
 		fi
 		clamd --foreground &
-		while [ ! -S "/run/clamav/clamd.sock" ] && [ ! -S "/tmp/clamd.sock" ]; do
+		while [ ! -S "/run/clamav/clamd.sock" ] && [ ! -S "/tmp/clamav/clamd.sock" ]; do
 			if [ "${_timeout:=0}" -gt "${CLAMD_STARTUP_TIMEOUT:=1800}" ]; then
 				echo
 				echo "Failed to start clamd"

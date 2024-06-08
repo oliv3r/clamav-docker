@@ -390,6 +390,11 @@ open clamd for anyone on the host system.
     --mount type=bind,source=/var/lib/docker/data/clamav/sockets/,target=/run/clamav/
 ```
 
+or when using a shared docker volume to share the socket within containers only
+```bash
+    --volume clamav_socket:/tmp/clamav
+```
+
 > _Note_: If you override the `LocalSocket` option with a custom `clamd.conf`
 config file, then you may find the `clamd.sock` file in a different location.
 

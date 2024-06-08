@@ -10,6 +10,10 @@
 
 set -eu
 
+if [ ! -d "/tmp/clamav" ]; then
+	install -d -g "clamav" -m 775 -o "clamav" "/tmp/clamav"
+fi
+
 # run command if it is not starting with a "-" and is an executable in PATH
 if [ "${#}" -gt 0 ] && \
    [ "${1#-}" = "${1}" ] && \
@@ -43,11 +47,11 @@ else
 
 	if [ "${CLAMAV_NO_CLAMD:-false}" != "true" ]; then
 		echo "Starting ClamAV"
-		if [ -S "/tmp/clamd.sock" ]; then
-			unlink "/tmp/clamd.sock"
+		if [ -S "/tmp/clamav/clamd.sock" ]; then
+			unlink "/tmp/clamav/clamd.sock"
 		fi
 		clamd --foreground &
-		while [ ! -S "/tmp/clamd.sock" ]; do
+		while [ ! -S "/tmp/clamav/clamd.sock" ]; do
 			if [ "${_timeout:=0}" -gt "${CLAMD_STARTUP_TIMEOUT:=1800}" ]; then
 				echo
 				echo "Failed to start clamd"

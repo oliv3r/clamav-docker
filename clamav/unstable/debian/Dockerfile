@@ -69,7 +69,7 @@ RUN apt update && apt install -y \
        "/clamav/usr/lib/pkgconfig/" \
     && \
     sed -e "s|^\(Example\)|\# \1|" \
-        -e "s|.*\(PidFile\) .*|\1 /tmp/clamd.pid|" \
+        -e "s|.*\(PidFile\) .*|\1 /tmp/clamav/clamd.pid|" \
         -e "s|.*\(LocalSocket\) .*|\1 /tmp/clamd.sock|" \
         -e "s|.*\(TCPSocket\) .*|\1 3310|" \
         -e "s|.*\(TCPAddr\) .*|#\1 0.0.0.0|" \
@@ -90,7 +90,7 @@ RUN apt update && apt install -y \
         -e "s|.*\(User\) .*|\1 clamav|" \
         -e "s|^\#\(LogFile\) .*|\1 /var/log/clamav/milter.log|" \
         -e "s|^\#\(LogTime\).*|\1 yes|" \
-        -e "s|.*\(\ClamdSocket\) .*|\1 unix:/tmp/clamd.sock|" \
+        -e "s|.*\(\ClamdSocket\) .*|\1 unix:/tmp/clamav/clamd.sock|" \
         "/clamav/etc/clamav/clamav-milter.conf.sample" > "/clamav/etc/clamav/clamav-milter.conf" || \
     exit 1 \
     && \
