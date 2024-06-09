@@ -10,12 +10,12 @@
 
 set -eu
 
-if [ ! -d "/run/clamav" ]; then
-	install -d -g "clamav" -m 775 -o "clamav" "/run/clamav"
-fi
+clamd_conf="/etc/clamav/clamd.conf"
+clamd_socket="$(sed -n -e "s|^LocalSocket \(/.*\)$|\1|p" "${clamd_conf:?Missing config file}" | tail -n 1)"
+clamd_socket_path="$(dirname "${clamd_socket:-}")"
 
-if [ ! -d "/tmp/clamav" ]; then
-	install -d -g "clamav" -m 775 -o "clamav" "/tmp/clamav"
+if [ ! -d "${clamd_socket_path:-}" ]; then
+	install -d -g "clamav" -m 775 -o "clamav" "${clamd_socket_path}"
 fi
 
 # Assign ownership to the database directory, just in case it is a mounted volume
@@ -58,14 +58,11 @@ else
 
 	if [ "${CLAMAV_NO_CLAMD:-false}" != "true" ]; then
 		echo "Starting ClamAV"
-		if [ -S "/run/clamav/clamd.sock" ]; then
-			unlink "/run/clamav/clamd.sock"
-		fi
-		if [ -S "/tmp/clamav/clamd.sock" ]; then
-			unlink "/tmp/clamav/clamd.sock"
+		if [ -S "${clamd_socket}" ]; then
+			unlink "${clamd_socket}"
 		fi
 		clamd --foreground &
-		while [ ! -S "/run/clamav/clamd.sock" ] && [ ! -S "/tmp/clamav/clamd.sock" ]; do
+		while [ ! -S "${clamd_socket}" ]; do
 			if [ "${_timeout:=0}" -gt "${CLAMD_STARTUP_TIMEOUT:=1800}" ]; then
 				echo
 				echo "Failed to start clamd"
