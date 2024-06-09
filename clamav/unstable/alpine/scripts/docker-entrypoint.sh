@@ -10,16 +10,27 @@
 
 set -eu
 
+uid="$(id -u)"
+username="$(id -n -u)"
 clamd_conf="/etc/clamav/clamd.conf"
 clamd_socket="$(sed -n -e "s|^LocalSocket \(/.*\)$|\1|p" "${clamd_conf:?Missing config file}" | tail -n 1)"
 clamd_socket_path="$(dirname "${clamd_socket:-}")"
+
+if [ "${clamd_socket_path#*'run'*}" != "${clamd_socket_path:-}" ] && \
+   [ "${uid:-}" -ne 0 ]; then
+	echo "Error: Requested path to socket '${clamd_socket_path}' cannot only be created by root."
+	echo "       User: ${username:-unknown} (${uid:--1})."
+	exit 1
+fi
 
 if [ ! -d "${clamd_socket_path:-}" ]; then
 	install -d -g "clamav" -m 775 -o "clamav" "${clamd_socket_path}"
 fi
 
-# Assign ownership to the database directory, just in case it is a mounted volume
-chown -R clamav:clamav "/var/lib/clamav"
+if [ "${uid:-}" -eq 0 ]; then
+	# Assign ownership to the database directory, just in case it is a mounted volume
+	chown -R clamav:clamav "/var/lib/clamav"
+fi
 
 # run command if it is not starting with a "-" and is an executable in PATH
 if [ "${#}" -gt 0 ] && \
@@ -36,8 +47,10 @@ else
 	# else default to running clamav's servers
 
 	# Help tiny-init a little
-	mkdir -p "/run/lock"
-	ln -f -s "/run/lock" "/var/lock"
+	if [ "${uid:-}" -eq 0 ]; then
+		mkdir -p "/run/lock"
+		ln -f -s "/run/lock" "/var/lock"
+	fi
 
 	# Ensure we have some virus data, otherwise clamd refuses to start
 	if [ ! -f "/var/lib/clamav/main.cvd" ]; then

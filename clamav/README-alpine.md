@@ -203,14 +203,14 @@ To do so, you have two options:
 If you're thinking about running multiple containers that share a single
 database volume, [here are some notes on how this might work](#multiple-containers-sharing-the-same-mounted-databases).
 
-### Running ClamD using non-root user using --user and --entrypoint
+### Running ClamD using root user
 
-You can run a container using the non-root user "clamav" with the unprivileged entrypoint script. To do this with Docker, you will need to add these two options: `--user "clamav" --entrypoint /init-unprivileged`
-For example:
+By default, the container is run with the clamav user. You can run a container
+using the root user. To do this with Docker, the `--user root` options
+needs to be added. For example:
 ```bash
 docker run -it --rm \
-      --user "clamav"
-      --entrypoint /init-unprivileged
+      --user "root"
       --name "clam_container_01" \
     clamav/clamav:unstable_base
 ```
